@@ -50,9 +50,11 @@ func (t *DingTalkClient) Send(message IMessage) (result Result, err error) {
 	var resp DingTalkResponse
 	response, err := requests.PostJson(t.url().String(), message)
 	if err != nil {
+		result.WithException(err)
 		return result, err
 	}
 	err = response.Unmarshal(&resp)
 	result = BuildResult(t.I(), message, resp)
+	result.WithException(err)
 	return result, err
 }

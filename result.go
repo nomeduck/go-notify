@@ -16,3 +16,11 @@ func BuildResult(client IClient, message IMessage, response any) Result {
 	rt.Result.Response = response
 	return rt
 }
+
+func (r *Result) WithException(err error) {
+	r.Result.Exception = err
+}
+
+func (r *Result) Error() string {
+	return r.Result.Exception.Error()
+}
