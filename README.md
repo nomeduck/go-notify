@@ -17,7 +17,19 @@ $ go get github.com/pkg6/go-notify
 
 ## 使用
 
-~~~
+
+
+## 平台支持
+
+* [钉钉群机器人](https://developers.dingtalk.com/document/app/custom-robot-access)
+
+
+
+## 使用
+<details>
+<summary><b>钉钉群机器人</b></summary>
+
+```
 package main
 
 import (
@@ -26,28 +38,25 @@ import (
 	"github.com/pkg6/go-notify/message/dingtalk"
 )
 
-func dingTalk() {
-	client := notify.DingTalkClient{
-		AccessToken: "06616a181687b5acf2dda36b1ce383c7bea2768da4ff56fc7dbedd62ea9b153b",
-		Secret:      "SEC1872aac880182595a5c2614cfef500d97e03898bb296bc28a4050ea0a3153843",
-	}.I()
-	message := dingtalk.TextMessage{}
-	message.Text.Content = "测试发送dingtalk"
+func main() {
+	client := &notify.DingTalkClient{
+		AccessToken: "27bbe68cc8b57acc2973b59fd7ae2460fb0b2322ce2e8660f5fb5b75aee04e88",
+		Secret:      "SEC55f77c19089ef4aee0be143a77d12730f2daaa2390b212cffb1e1ac1f23f8ccc",
+	}
+	message := &dingtalk.TextMessage{}
+	message.Text.Content = "测试发送dingtalk2"
 
 	n := notify.New(client)
-	sender, _ := n.Sender(message.I())
-	for name, result := range sender {
-		fmt.Println(name)
-		if response, ok := result.Result.Response.(notify.DingTalkResponse); ok {
-			fmt.Println(response)
-		}
+	sender := n.Send(message)
+	for _, result := range sender {
+		fmt.Println(fmt.Sprintf("%#v", result.Result()))
+		fmt.Println(fmt.Sprintf("%#v", result.Status()))
+		fmt.Println(fmt.Sprintf("%#v", result.Error()))
 	}
 }
+```
+</details>
 
-func main() {
-	dingTalk()
-}
-~~~
 
 ## 自定义客户端
 
@@ -55,13 +64,14 @@ func main() {
 type IClient interface {
 	I() IClient
 	Name() string
-	Send(message IMessage) (result Result, err error)
+	Send(message IMessage) IResult
 }
 ~~~
 
 ## 自定义消息内容
 
 ~~~
+// IMessage 消息
 type IMessage interface {
 	// I 初始化并返回IMessage
 	I() IMessage
