@@ -22,6 +22,7 @@ $ go get github.com/pkg6/go-notify
 ## 平台支持
 
 * [钉钉群机器人](https://developers.dingtalk.com/document/app/custom-robot-access)
+* [微信群机器人](https://developer.work.weixin.qq.com/document/path/91770)
 
 
 
@@ -45,6 +46,36 @@ func main() {
 	}
 	message := &dingtalk.TextMessage{}
 	message.Text.Content = "测试发送dingtalk2"
+
+	n := notify.New(client)
+	sender := n.Send(message)
+	for _, result := range sender {
+		fmt.Println(fmt.Sprintf("%#v", result.Result()))
+		fmt.Println(fmt.Sprintf("%#v", result.Status()))
+		fmt.Println(fmt.Sprintf("%#v", result.Error()))
+	}
+}
+```
+</details>
+
+<details>
+<summary><b>微信群机器人</b></summary>
+
+```
+package main
+
+import (
+	"fmt"
+	"github.com/pkg6/go-notify"
+	"github.com/pkg6/go-notify/message/wework"
+)
+
+func main() {
+	client := &notify.WeWorkClient{
+		Key: "693a91f6-7xxx-4bc4-97a0-0ec2sifa5aaa",
+	}
+	message := &wework.TextMessage{}
+	message.Text.Content = "测试发送wework"
 
 	n := notify.New(client)
 	sender := n.Send(message)
