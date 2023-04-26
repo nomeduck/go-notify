@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/pkg6/go-requests"
 	"net/url"
@@ -46,15 +47,22 @@ func (t *DingTalkClient) url() *url.URL {
 	uri.RawQuery = query.Encode()
 	return uri
 }
-func (t *DingTalkClient) Send(message IMessage) (result Result, err error) {
+func (t *DingTalkClient) Send(message IMessage) (result IResult) {
 	var resp DingTalkResponse
+	result = BuildResult(t.I(), message)
 	response, err := requests.PostJson(t.url().String(), message)
 	if err != nil {
 		result.WithException(err)
-		return result, err
+		return result
 	}
 	err = response.Unmarshal(&resp)
-	result = BuildResult(t.I(), message, resp)
-	result.WithException(err)
-	return result, err
+	if err != nil {
+		result.WithException(err)
+		return result
+	}
+	result.WithResult(resp)
+	if resp.Errcode != 0 {
+		result.WithException(errors.New(resp.Errmsg))
+	}
+	return result
 }

@@ -1,26 +1,52 @@
 package notify
 
 type Result struct {
-	Client  IClient  `json:"client"`
-	Message IMessage `json:"message"`
-	Result  struct {
-		Status    string `json:"status"`
-		Response  any    `json:"response" `
-		Exception error  `json:"exception"`
-	} `json:"result"`
+	client    IClient
+	message   IMessage
+	status    int
+	exception error
+	result    any
 }
 
 // BuildResult 在网关快速生成结构体
-func BuildResult(client IClient, message IMessage, response any) Result {
-	rt := Result{Client: client, Message: message}
-	rt.Result.Response = response
+func BuildResult(client IClient, message IMessage) IResult {
+	rt := &Result{client: client, message: message}
+	rt.WithStatus(RESULT_STATUS_SUCCESS)
 	return rt
 }
 
-func (r *Result) WithException(err error) {
-	r.Result.Exception = err
+// WithResult 携带第三方相应数据
+func (r *Result) WithResult(response any) {
+	r.result = response
 }
 
+// WithStatus 携带状态值
+func (r *Result) WithStatus(status int) {
+	r.status = status
+}
+
+// WithException 异常
+func (r *Result) WithException(err error) {
+	if err != nil {
+		r.WithStatus(RESULT_STATUS_ERROR)
+	}
+	r.exception = err
+}
+
+// Status 消息发送状态
+func (r *Result) Status() int {
+	return r.status
+}
+
+// Result WithException 异常
+func (r *Result) Result() any {
+	return r.result
+}
+
+//返回错误信息
 func (r *Result) Error() string {
-	return r.Result.Exception.Error()
+	if r.exception == nil {
+		return ""
+	}
+	return r.exception.Error()
 }
